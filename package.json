@@ -1,0 +1,19 @@
+{
+  "name": "furniexpert",
+  "version": "1.0.0",
+  "main": "login.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/narendraojha24/FurniExpert-AR-Shopping.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/narendraojha24/FurniExpert-AR-Shopping/issues"
+  },
+  "homepage": "https://github.com/narendraojha24/FurniExpert-AR-Shopping#readme",
+  "description": ""
+}

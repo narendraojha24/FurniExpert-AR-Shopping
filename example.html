@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Furniture Store</title>
+  <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    /* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+  padding: 20px;
+}
+
+/* Furniture Box */
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 250px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin: 10px;
+}
+
+.box:hover {
+  transform: scale(1.05);
+}
+
+.box-img img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.title-price {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.stars i {
+  color: gold;
+}
+
+span {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background-color: white;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.modal-img {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+}
+
+.modal-img img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.modal-info {
+  flex: 1;
+  padding: 20px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.buy-btn, .ar-btn {
+  margin: 10px 0;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.buy-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.ar-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .modal-img, .modal-info {
+    width: 100%;
+  }
+
+  .modal-info {
+    padding: 10px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Furniture Box -->
+  <div class="box" data-aos="fade-left" onclick="showDetails({
+    name: 'Gray Chair',
+    price: 12000,
+    description: 'A comfortable and elegant gray chair.',
+    dimensions: { height: 100, width: 60, depth: 50 },
+    weight: 15,
+    material: 'Wood & Fabric',
+    color: 'Gray',
+    assemblyRequired: true,
+    stock: 5,
+    arModel: 'https://example.com/ar-model.glb',
+    picture: 'Calacatta Arabescato - Traslucent to be backlit _ Full backlit Panels.jpeg',
+    careInstruction: 'Wipe with a dry cloth.',
+    reviews: [{ rating: 4.5, comment: 'Very comfortable!', userId: 'John Doe' }]
+  })">
+    <div class="box-img">
+      <img src="Calacatta Arabescato - Traslucent to be backlit _ Full backlit Panels.jpeg" alt="Gray Chair">
+    </div>
+    <div class="title-price">
+      <h3>Gray Chair</h3>
+      <div class="stars">
+        <i class='bx bxs-star'></i>
+        <i class='bx bxs-star'></i>
+        <i class='bx bxs-star'></i>
+        <i class='bx bxs-star'></i>
+        <i class='bx bxs-star-half'></i>
+      </div>
+    </div>
+    <span>Rs 12000</span>
+    <i class='bx bx-cart'></i>
+  </div>
+
+  <!-- Modal for Product Details -->
+  <div id="detailsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <div class="modal-img">
+        <img id="modalImage" src="" alt="Product Image">
+      </div>
+      <div class="modal-info">
+        <h2 id="modalTitle"></h2>
+        <p id="modalDescription"></p>
+        <p><strong>Price:</strong> <span id="modalPrice"></span></p>
+        <p><strong>Material:</strong> <span id="modalMaterial"></span></p>
+        <p><strong>Color:</strong> <span id="modalColor"></span></p>
+        <p><strong>Dimensions:</strong> <span id="modalDimensions"></span></p>
+        <p><strong>Weight:</strong> <span id="modalWeight"></span> kg</p>
+        <p><strong>Stock:</strong> <span id="modalStock"></span></p>
+        <p><strong>Assembly Required:</strong> <span id="modalAssembly"></span></p>
+        <p><strong>Care Instructions:</strong> <span id="modalCare"></span></p>
+
+        <h3>Customer Reviews</h3>
+        <ul id="modalReviews"></ul>
+
+        <button class="buy-btn">Buy Now</button>
+        <a id="arLink" href="" target="_blank"><button class="ar-btn">View in AR</button></a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showDetails(product) {
+  document.getElementById('modalTitle').textContent = product.name;
+  document.getElementById('modalDescription').textContent = product.description;
+  document.getElementById('modalPrice').textContent = `Rs ${product.price}`;
+  document.getElementById('modalMaterial').textContent = product.material;
+  document.getElementById('modalColor').textContent = product.color;
+  document.getElementById('modalDimensions').textContent = 
+    `${product.dimensions.height}x${product.dimensions.width}x${product.dimensions.depth} cm`;
+  document.getElementById('modalWeight').textContent = product.weight;
+  document.getElementById('modalStock').textContent = product.stock > 0 ? 'In Stock' : 'Out of Stock';
+  document.getElementById('modalAssembly').textContent = product.assemblyRequired ? 'Yes' : 'No';
+  document.getElementById('modalCare').textContent = product.careInstruction;
+  document.getElementById('modalImage').src = product.picture;
+  document.getElementById('arLink').href = product.arModel;
+
+  const reviewsList = document.getElementById('modalReviews');
+  reviewsList.innerHTML = '';
+  product.reviews.forEach(review => {
+    const li = document.createElement('li');
+    li.textContent = `${review.userId}: ${review.comment} (${review.rating}/5)`;
+    reviewsList.appendChild(li);
+  });
+
+  document.getElementById('detailsModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('detailsModal').style.display = 'none';
+}
+
+  </script>
+</body>
+</html>

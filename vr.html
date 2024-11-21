@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>WebXR Plane Detection</title>
+  
+  <!-- Three.js and GLTFLoader -->
+  <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+  <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+  <button onclick="activateXR()">Start AR</button>
+  
+  <script>
+    let reticle, hitTestSource, referenceSpace, isModelPlaced = false;
+    const loader = new THREE.GLTFLoader();
+    const scene = new THREE.Scene();
+
+    async function activateXR() {
+      // Check WebXR support
+      if (!navigator.xr || !(await navigator.xr.isSessionSupported("immersive-ar"))) {
+        alert("WebXR not supported on this device/browser.");
+        return;
+      }
+
+      // Create canvas and WebGL context
+      const canvas = document.createElement("canvas");
+      document.body.appendChild(canvas);
+      const gl = canvas.getContext("webgl", { xrCompatible: true });
+
+      // Initialize WebGL renderer
+      const renderer = new THREE.WebGLRenderer({ canvas, context: gl, alpha: true });
+      renderer.autoClear = false;
+
+      // Camera setup
+      const camera = new THREE.PerspectiveCamera();
+      camera.matrixAutoUpdate = false;
+
+      // Add directional light
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(5, 10, 7.5);
+      scene.add(light);
+
+      // Initialize WebXR session with hit-test feature
+      const session = await navigator.xr.requestSession("immersive-ar", {
+        requiredFeatures: ["hit-test", "local-floor"] // Add 'local-floor' for better alignment
+      });
+      session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
+
+      referenceSpace = await session.requestReferenceSpace("local-floor"); // More stable reference space
+      const viewerSpace = await session.requestReferenceSpace("viewer");
+      hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+
+      session.addEventListener("select", () => placeModel());
+
+      // Load reticle model
+      loader.load(
+        "https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf",
+        (gltf) => {
+          reticle = gltf.scene;
+          reticle.visible = false; // Initially hidden
+          scene.add(reticle);
+        }
+      );
+
+      // Animation loop
+      const onXRFrame = (time, frame) => {
+        session.requestAnimationFrame(onXRFrame);
+
+        // Update frame buffer and clear
+        const framebuffer = session.renderState.baseLayer.framebuffer;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        renderer.clear();
+
+        // Get viewer pose
+        const pose = frame.getViewerPose(referenceSpace);
+        if (pose) {
+          const view = pose.views[0];
+          const viewport = session.renderState.baseLayer.getViewport(view);
+          renderer.setSize(viewport.width, viewport.height);
+
+          // Update camera matrices
+          camera.matrix.fromArray(view.transform.matrix);
+          camera.projectionMatrix.fromArray(view.projectionMatrix);
+          camera.updateMatrixWorld(true);
+
+          // Handle hit test results
+          if (!isModelPlaced) { // Only handle reticle if model is not placed
+            const hitTestResults = frame.getHitTestResults(hitTestSource);
+            if (hitTestResults.length > 0) {
+              const hitPose = hitTestResults[0].getPose(referenceSpace);
+              reticle.visible = true;
+              reticle.position.set(
+                hitPose.transform.position.x,
+                hitPose.transform.position.y,
+                hitPose.transform.position.z
+              );
+              reticle.updateMatrixWorld(true);
+            } else {
+              reticle.visible = false;
+            }
+          }
+
+          // Render scene
+          renderer.render(scene, camera);
+        }
+      };
+      session.requestAnimationFrame(onXRFrame);
+    }
+
+
+    const params = new URLSearchParams(window.location.search);
+    const message = params.get('message');
+
+    // Place the chair model at the reticle position
+    function placeModel() {
+      if (reticle && reticle.visible && !isModelPlaced) {
+        loader.load(
+          message, // Replace this with the path to your chair.glb file
+          (gltf) => {
+            const model = gltf.scene.clone();
+            model.position.copy(reticle.position);
+            model.scale.set(1, 1, 1); // Default size
+            scene.add(model);
+
+            isModelPlaced = true; // Prevent additional placement
+            reticle.visible = false; // Hide reticle after model placement
+          }
+        );
+      }
+    }
+
+  </script>
+</body>
+</html>

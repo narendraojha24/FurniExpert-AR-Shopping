@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Furniture Website</title>
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <!-- LInk To CSS -->
+    <link rel="stylesheet" href="main_style.css">
+    <!-- Box Icons -->
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <header data-aos="fade-left">
+        <a href="#" class="logo"> <span>FurniExpert</span></a>
+        <div class="bx bx-menu" id="menu-icon"></div>
+ 
+        <ul class="navbar">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#shop">Shop</a></li>
+            <li><a href="#new">New Arrival</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </header>
+ 
+
+    
+    <script>
+        let menu = document.querySelector('#menu-icon');
+let navbar = document.querySelector('.navbar');
+ 
+menu.onclick = () => {
+    navbar.classList.toggle('active');
+}
+ 
+window.onscroll = () => {
+    navbar.classList.remove('active');
+}
+    </script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    
+
+<script>
+    AOS.init({offset: 300,duration: 2000});
+
+
+
+
+    
+ function showDetails(product) {
+// Populate the modal with product data
+document.getElementById('modalTitle').textContent = product.name;
+document.getElementById('modalDescription').textContent = product.description;
+document.getElementById('modalPrice').textContent = `Rs ${product.price}`;
+document.getElementById('modalMaterial').textContent = product.material;
+document.getElementById('modalColor').textContent = product.color;
+document.getElementById('modalDimensions').textContent =
+  `${product.dimensions.height}x${product.dimensions.width}x${product.dimensions.depth} cm`;
+document.getElementById('modalWeight').textContent = product.weight;
+document.getElementById('modalStock').textContent = product.stock > 0 ? 'In Stock' : 'Out of Stock';
+document.getElementById('modalAssembly').textContent = product.assemblyRequired ? 'Yes' : 'No';
+document.getElementById('modalCare').textContent = product.careInstruction;
+document.getElementById('modalImage').src = product.picture;
+document.getElementById('arLink').href = product.arModel;
+
+// Display reviews
+const reviewsList = document.getElementById('modalReviews');
+reviewsList.innerHTML = '';
+product.reviews.forEach(review => {
+  const li = document.createElement('li');
+  li.textContent = `${review.userId}: ${review.comment} (${review.rating}/5)`;
+  reviewsList.appendChild(li);
+});
+
+// Show the modal
+const modal = document.getElementById('detailsModal');
+modal.style.display = 'flex';
+
+// Disable scrolling and interactions outside the modal
+document.body.classList.add('modal-open');
+}
+
+function closeModal() {
+// Hide the modal
+const modal = document.getElementById('detailsModal');
+modal.style.display = 'none';
+
+// Re-enable scrolling and interactions
+document.body.classList.remove('modal-open');
+}
+
+
+  </script>
+
+<script src="model3d.js"></script>
+
+<!-- Include Three.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+</body>
+</html>
